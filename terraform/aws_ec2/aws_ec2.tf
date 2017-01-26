@@ -59,11 +59,12 @@ resource "aws_security_group" "terraformSftpConsulDemoInstanceSecurityGroup" {
 }
 
 resource "aws_instance" "terraformSftpServer" {
-    key_name            	= "${var.key_name}"
-	ami 					= "${var.aws_ec2_ami}"
-    instance_type 			= "${var.instance_type}"
-	subnet_id  				= "${var.aws_vpc_subet_one_id}"
-	iam_instance_profile	= "${aws_iam_instance_profile.terraformSftpDemoInstanceProfile.id}"
+    key_name            			= "${var.key_name}"
+	ami 							= "${var.aws_ec2_ami}"
+    instance_type 					= "${var.instance_type}"
+	subnet_id  						= "${var.aws_vpc_subet_one_id}"
+	iam_instance_profile			= "${aws_iam_instance_profile.terraformSftpDemoInstanceProfile.id}"
+	associate_public_ip_address 	= true
 	security_groups = [
       "${aws_security_group.terraformSftpConsulDemoInstanceSecurityGroup.id}",
     ]
