@@ -5,4 +5,8 @@ variable "region" {
   default = "ap-southeast-2"
 }
 
-#ec2
+#aws_ec2
+variable "key_name" {}
+variable "vpc_security_group_ingress_cidr_block_list" {
+  type = "list"
+}

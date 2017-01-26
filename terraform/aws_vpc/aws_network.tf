@@ -4,67 +4,67 @@ provider "aws" {
   region     = "${var.region}"
 }
 
-resource "aws_vpc" "demoVPC" {
+resource "aws_vpc" "terraformSftpDemoVPC" {
   cidr_block = "${var.vpc_cidr_block}"
   tags {
-    Name = "demoVPC"
+    Name = "terraformSftpDemoVPC"
   }
 }
 
-resource "aws_internet_gateway" "demoIG" {
-  vpc_id = "${aws_vpc.demoVPC.id}"
+resource "aws_internet_gateway" "terraformSftpDemoIG" {
+  vpc_id = "${aws_vpc.terraformSftpDemoVPC.id}"
   tags {
-    Name = "demoIG"
+    Name = "terraformSftpDemoIG"
   }
 }
 
-resource "aws_subnet" "demoSubnet0-0" {
-  vpc_id = "${aws_vpc.demoVPC.id}"
+resource "aws_subnet" "terraformSftpDemoSubnet0-0" {
+  vpc_id = "${aws_vpc.terraformSftpDemoVPC.id}"
   cidr_block = "${var.vpc_subnet1_cidr_block}"
   availability_zone = "${var.vpc_subnet1_availability_zone}"
   tags {
-    Name = "demoSubnet0-0"
+    Name = "terraformSftpDemoSubnet0-0"
   }
 }
 
-resource "aws_subnet" "demoSubnet0-1" {
-  vpc_id = "${aws_vpc.demoVPC.id}"
+resource "aws_subnet" "terraformSftpDemoSubnet0-1" {
+  vpc_id = "${aws_vpc.terraformSftpDemoVPC.id}"
   cidr_block = "${var.vpc_subnet2_cidr_block}"
   availability_zone = "${var.vpc_subnet2_availability_zone}"
   tags {
-    Name = "demoSubnet0-1"
+    Name = "terraformSftpDemoSubnet0-1"
   }
 }
 
-resource "aws_route_table" "demoSubnet0-0RT" {
-  vpc_id = "${aws_vpc.demoVPC.id}"
+resource "aws_route_table" "terraformSftpDemoSubnet0-0RT" {
+  vpc_id = "${aws_vpc.terraformSftpDemoVPC.id}"
   route {
     cidr_block = "${var.vpc_route_table_cidr_block}"
-    gateway_id = "${aws_internet_gateway.demoIG.id}"
+    gateway_id = "${aws_internet_gateway.terraformSftpDemoIG.id}"
   }
   tags {
-    Name = "demoSubnet0-0RT"
+    Name = "terraformSftpDemoSubnet0-0RT"
   }
 }
 
-resource "aws_route_table_association" "demoSubnet0-0RTAssn" {
-  subnet_id = "${aws_subnet.demoSubnet0-0.id}"
-  route_table_id = "${aws_route_table.demoSubnet0-0RT.id}"
+resource "aws_route_table_association" "terraformSftpDemoSubnet0-0RTAssn" {
+  subnet_id = "${aws_subnet.terraformSftpDemoSubnet0-0.id}"
+  route_table_id = "${aws_route_table.terraformSftpDemoSubnet0-0RT.id}"
 }
 
-resource "aws_route_table_association" "demoSubnet0-1RTAssn" {
-  subnet_id = "${aws_subnet.demoSubnet0-1.id}"
-  route_table_id = "${aws_route_table.demoSubnet0-0RT.id}"
+resource "aws_route_table_association" "terraformSftpDemoSubnet0-1RTAssn" {
+  subnet_id = "${aws_subnet.terraformSftpDemoSubnet0-1.id}"
+  route_table_id = "${aws_route_table.terraformSftpDemoSubnet0-0RT.id}"
 }
 
 output "aws_vpc_id" {
-  value = "${aws_vpc.demoVPC.id}"
+  value = "${aws_vpc.terraformSftpDemoVPC.id}"
 }
 
 output "subet_one_id" {
-	value = "${aws_subnet.demoSubnet0-0.id}"
+	value = "${aws_subnet.terraformSftpDemoSubnet0-0.id}"
 }
 
 output "subet_two_id" {
-	value = "${aws_subnet.demoSubnet0-1.id}"
+	value = "${aws_subnet.terraformSftpDemoSubnet0-1.id}"
 }
