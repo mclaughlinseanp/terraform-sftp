@@ -40,11 +40,4 @@ sudo chmod 751 $terraform_dir
 sudo chown vagrant $terraform_dir
 export PATH=$PATH:$terraform_dir
 
-#Add the current Vagrant IP addess to known hosts so local provisioning will work
-known_hosts_file=~/.ssh/known_hosts
-vagrant_ip=192.168.88.101
-touch $known_hosts_file
-ssh-keygen -R $vagrant_ip
-ssh-keyscan -H $vagrant_ip >> $known_hosts_file
-
 

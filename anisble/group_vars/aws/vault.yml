@@ -1,0 +1,41 @@
+---
+## sftp users - All passwords are 'password_1' ##
+sftp_users:
+  - name: group1-user1
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+  - name: group1-user2
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+  - name: group2-user1
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+  - name: group2-user2
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+  - name: group3-user1
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+  - name: group3-user2
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+  - name: group3-user3
+    password: "sa3tHJ3/KuYvI"
+    authorized: []
+sftp_user_group1:
+  - name: group1-user1
+    root_folder: directory1
+  - name: group1-user2
+    root_folder: directory1
+sftp_user_group2:
+  - name: group2-user1
+    root_folder: directory2
+  - name: group2-user2
+    root_folder: directory2
+sftp_user_group3:
+  - name: group3-user1
+    root_folder: directory3
+  - name: group3-user2
+    root_folder: directory3
+  - name: group3-user3
+    root_folder: directory3

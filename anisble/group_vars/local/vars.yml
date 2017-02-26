@@ -1,11 +1,11 @@
 ---
 
-## vars file for aws_sftp ##
+## vars file for sftp ##
 sftp_maxlogins: 5
 sftp_directories:
   - directory1
   - directory2
   - directory3
-  - directory2\subdir1
-  - directory3\subdir1
-  - directory3\subdir2
+  - directory2/subdir1
+  - directory3/subdir1
+  - directory3/subdir2

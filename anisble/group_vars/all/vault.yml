@@ -1,0 +1,6 @@
+---
+
+# NOTE: This file would normally be encrypted using Ansible vault #
+
+## For SSH access to the machine ##
+aws_secret_key: "RawdQHZZGJ8gioFCjK3ndE24dWSqFU/jck1yVAPy"
