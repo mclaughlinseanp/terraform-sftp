@@ -1,9 +1,9 @@
 ---
 - name: Install linux ACL
-  apt: pkg=acl state=present update_cache=yes
+  apt: pkg=acl state=present update_cache=no
 
 - name: Install iftop so we can monitor traffic in realtime from the machine when needed
-  apt: pkg=iftop state=present update_cache=yes
+  apt: pkg=iftop state=present update_cache=no
   
 - name: Ensure fstab uses acl
   mount:
@@ -24,7 +24,7 @@
               regexp="^Subsystem sftp"
               line="Subsystem sftp internal-sftp -f AUTH -l VERBOSE"
               state=present
-  notify: SFTP-Server | Restart sshd
+  notify: Restart sshd
 
 - name: Set the login limits for SFTP accounts
   lineinfile: dest=/etc/security/limits.conf 
@@ -32,7 +32,7 @@
               line="{{ item.name }} - maxlogins {{ sftp_maxlogins }}"
               state=present
   with_items: "{{ sftp_users }}"
-  notify: SFTP-Server | Restart sshd
+  notify: Restart sshd
 
 - name: Get sshd_config content
   shell: sed -n '/# Begin SFTP-Server block/,/# End SFTP-Server block/! { p }' /etc/ssh/sshd_config
@@ -41,13 +41,13 @@
   
 - name: Turn on password auth
   replace: dest=/etc/ssh/sshd_config regexp='PasswordAuthentication no' replace='PasswordAuthentication yes' backup=yes
-  notify: SFTP-Server | Restart sshd
+  notify: Restart sshd
 
 - name: Apply sshd_config template
   template: src=sshd_config.j2
             dest=/etc/ssh/sshd_config
             owner=root
-  notify: SFTP-Server | Restart sshd
+  notify: Restart sshd
 
 - name: Create SFTP users and add to group
   user: name={{ item.name }}
@@ -67,7 +67,7 @@
 - name: Install public keys
   authorized_key: user={{ item.0.name }} key='{{ lookup('file', item.1) }}'
   with_subelements:
-    - sftp_users
+    - "{{ sftp_users }}"
     - authorized
 
 - name: Update user passwords
@@ -87,17 +87,17 @@
     - "{{ sftp_directories }}"
 
 - name: set ACLs for sftp_user_group1
-  acl: name="{{ sftp_chroot_dir }}/{{ item.root_folder }}" entity="{{ item }}" etype=user permissions="rwx" state=present recursive=yes
+  acl: name="{{ sftp_chroot_dir }}/{{ item.root_folder }}" entity="{{ item.name }}" etype=user permissions="rwx" state=present recursive=yes
   with_items:
     - "{{ sftp_user_group1 }}"
 
 - name: set ACLs for sftp_user_group2
-  acl: name="{{ sftp_chroot_dir }}/{{ item.root_folder }}" entity="{{ item }}" etype=user permissions="rwx" state=present recursive=yes
+  acl: name="{{ sftp_chroot_dir }}/{{ item.root_folder }}" entity="{{ item.name }}" etype=user permissions="rwx" state=present recursive=yes
   with_items:
     - "{{ sftp_user_group2 }}"
 
 - name: set ACLs for sftp_user_group3
-  acl: name="{{ sftp_chroot_dir }}//{{ item.root_folder }}" entity="{{ item }}" etype=user permissions="rwx" state=present recursive=yes
+  acl: name="{{ sftp_chroot_dir }}//{{ item.root_folder }}" entity="{{ item.name }}" etype=user permissions="rwx" state=present recursive=yes
   with_items:
     - "{{ sftp_user_group3 }}"
 
