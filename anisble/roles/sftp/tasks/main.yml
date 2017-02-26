@@ -1,0 +1,106 @@
+---
+- name: Install linux ACL
+  apt: pkg=acl state=present update_cache=yes
+
+- name: Install iftop so we can monitor traffic in realtime from the machine when needed
+  apt: pkg=iftop state=present update_cache=yes
+  
+- name: Ensure fstab uses acl
+  mount:
+    name: "{{ item.mount }}"
+    src: "{{ item.device }}"
+    fstype: "{{ item.fstype }}"
+    opts: "{{ item.options }},acl"
+    state: present
+  with_items: "{{ ansible_mounts }}"
+  when: item.mount in ['/', '/home', '/var'] and item.options.find("acl") == -1
+  
+- name: Create SFTP user groups
+  group: name={{ sftp_group_name }}
+         state=present
+
+- name: Alter SFTP subsystem entry - for chrooting of SFTP users
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^Subsystem sftp"
+              line="Subsystem sftp internal-sftp -f AUTH -l VERBOSE"
+              state=present
+  notify: SFTP-Server | Restart sshd
+
+- name: Set the login limits for SFTP accounts
+  lineinfile: dest=/etc/security/limits.conf 
+              regexp="^{{ item.name }}" 
+              line="{{ item.name }} - maxlogins {{ sftp_maxlogins }}"
+              state=present
+  with_items: "{{ sftp_users }}"
+  notify: SFTP-Server | Restart sshd
+
+- name: Get sshd_config content
+  shell: sed -n '/# Begin SFTP-Server block/,/# End SFTP-Server block/! { p }' /etc/ssh/sshd_config
+  register: sftp_sshd_config_content
+  changed_when: True == False
+  
+- name: Turn on password auth
+  replace: dest=/etc/ssh/sshd_config regexp='PasswordAuthentication no' replace='PasswordAuthentication yes' backup=yes
+  notify: SFTP-Server | Restart sshd
+
+- name: Apply sshd_config template
+  template: src=sshd_config.j2
+            dest=/etc/ssh/sshd_config
+            owner=root
+  notify: SFTP-Server | Restart sshd
+
+- name: Create SFTP users and add to group
+  user: name={{ item.name }}
+        groups={{ sftp_group_name }}
+        home="{{ sftp_home_partition }}/{{ item.name }}"
+        state=present
+        shell="/bin/false"
+  with_items: "{{ sftp_users }}"
+
+- name: A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
+  file: path="{{ sftp_home_partition }}/{{ item.name }}"
+        owner=root
+        group={{ sftp_group_name }}
+        mode="0750"
+  with_items: "{{ sftp_users }}"
+
+- name: Install public keys
+  authorized_key: user={{ item.0.name }} key='{{ lookup('file', item.1) }}'
+  with_subelements:
+    - sftp_users
+    - authorized
+
+- name: Update user passwords
+  user: name={{ item.name }}
+        password={{ item.password }}
+  with_items: "{{ sftp_users }}"
+  when: item.password != ''
+
+- name: Create SFTP chroot directory
+  file: path="{{ sftp_chroot_dir }}/{{ item[1] }}"
+        owner="root"
+        group="sftpusers"
+        mode="0750"
+        state=directory
+  with_nested:
+    - "{{ sftp_users }}"
+    - "{{ sftp_directories }}"
+
+- name: set ACLs for sftp_user_group1
+  acl: name="{{ sftp_chroot_dir }}/{{ item.root_folder }}" entity="{{ item }}" etype=user permissions="rwx" state=present recursive=yes
+  with_items:
+    - "{{ sftp_user_group1 }}"
+
+- name: set ACLs for sftp_user_group2
+  acl: name="{{ sftp_chroot_dir }}/{{ item.root_folder }}" entity="{{ item }}" etype=user permissions="rwx" state=present recursive=yes
+  with_items:
+    - "{{ sftp_user_group2 }}"
+
+- name: set ACLs for sftp_user_group3
+  acl: name="{{ sftp_chroot_dir }}//{{ item.root_folder }}" entity="{{ item }}" etype=user permissions="rwx" state=present recursive=yes
+  with_items:
+    - "{{ sftp_user_group3 }}"
+
+- name: Update ownership of all folders to the group
+  shell: cd /sftp && mkdir "{{ sftp_group_name }}" || true && chmod g+s "{{ sftp_group_name }}"
+

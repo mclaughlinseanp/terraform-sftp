@@ -1,0 +1,4 @@
+---
+- name: Restart sshd so all changes can take effect
+  service: name=ssh
+           state=restarted

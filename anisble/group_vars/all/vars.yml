@@ -1,0 +1,11 @@
+---
+
+## For SSH access to the machine ##
+aws_access_key: "AKIAIJJJLZ6YPZORF4WA"
+aws_region: "ap-southeast-2"
+
+## Standard SFTP properties ## 
+sftp_home_partition: /home
+sftp_group_name: sftpusers
+sftp_allow_passwords: true
+sftp_chroot_dir: "/sftp"

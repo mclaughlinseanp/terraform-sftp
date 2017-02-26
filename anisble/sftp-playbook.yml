@@ -1,0 +1,7 @@
+
+- name: Configure ec2 instance as SFTP Server
+  hosts: sftpserver-*
+  sudo: yes
+  roles:
+    - { role: sftp }
+  connection: ssh

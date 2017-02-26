@@ -1,0 +1,8 @@
+sftpserver-aws 		ansible_host=????????????		ansible_user=ubuntu 	ansible_ssh_private_key_file=~/.ssh/IntegrationStack-CI-201604_id_rsa
+sftpserver-local 	ansible_host=192.168.88.101		ansible_user=vagrant 	ansible_ssh_pass=vagrant		
+
+[local]
+sftpserver-local
+
+[aws]
+sftpserver-aws
